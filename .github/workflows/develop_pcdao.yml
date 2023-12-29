@@ -38,10 +38,10 @@ jobs:
           yarn install
 
       - name: Lint mono
-        run: npx nx admin:lint
+        run: npx nx lint
 
       - name: Build mono
-        run: npx nx admin:build
+        run: npx nx build
 
       - name: Zip artifact for deployment
         run: zip release.zip ./dist/apps/admin/* -r
