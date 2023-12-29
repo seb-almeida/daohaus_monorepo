@@ -21,14 +21,30 @@ jobs:
         with:
           node-version: '18.x'
 
+      - name: Create env file
+        run: |
+          touch .env
+          echo NX_RIVET_KEY=${{ secrets.NX_RIVET_KEY }}  >> .env
+          echo NX_ETHERSCAN_KEY=${{ secrets.NX_ETHERSCAN_KEY }}  >> .env
+          echo NX_ARBISCAN_KEY=${{ secrets.NX_ARBISCAN_KEY }}  >> .env
+          echo NX_GNOSISSCAN_KEY=${{ secrets.NX_GNOSISSCAN_KEY }}  >> .env
+          echo NX_POLYGONSCAN_KEY=${{ secrets.NX_POLYGONSCAN_KEY }}  >> .env
+          echo NX_OPTIMISMSCAN_KEY=${{ secrets.NX_OPTIMISMSCAN_KEY }}  >> .env
+          echo NX_GRAPH_API_KEY_MAINNET=${{ secrets.NX_GRAPH_API_KEY_MAINNET }}  >> .env
+          echo NX_WALLET_CONNECT_ID=${{ secrets.NX_WALLET_CONNECT_ID }}  >> .env
+
       - name: npm install, build, and test
         run: |
-          npm install
-          npm run build --if-present
-          npm run test --if-present
+          yarn install
+
+      - name: Lint mono
+        run: npx nx admin:lint --base $BASE
+
+      - name: Build mono
+        run: npx nx admin:build --base $BASE
 
       - name: Zip artifact for deployment
-        run: zip release.zip ./* -r
+        run: zip release.zip ./dist/apps/admin/* -r
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
@@ -42,7 +58,7 @@ jobs:
     environment:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-    
+
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v3
@@ -51,7 +67,7 @@ jobs:
 
       - name: Unzip artifact for deployment
         run: unzip release.zip
-      
+
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
