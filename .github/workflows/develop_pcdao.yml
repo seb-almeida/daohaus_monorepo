@@ -9,6 +9,9 @@ on:
       - develop
   workflow_dispatch:
 
+env:
+  BASE: ${{ github.ref == 'refs/heads/develop' && 'origin/develop~1' || 'origin/develop' }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
